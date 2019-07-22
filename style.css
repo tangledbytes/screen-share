@@ -181,7 +181,7 @@ body{
     .panel2{
         display: none;
     }
-    .panel1 div{
+    .panel1 .batch{
         display: flex;
         flex-direction: column;
     }
