@@ -18,11 +18,16 @@
     <div class="container">
         <div class="panel1">
             <h1 class="greet">Welcome to the screen share!</h1>
-            <div>
+            <div class="batch">
                 <div class="join">
                     <input id="call" class="input" placeholder="ID of the user" type="text" spellcheck="false" />
                     <button id="call" class="btn" onclick="callInit()" class="connect">Connect to a screen</button>
                     <h2 class="greet">OR</h2>
+                </div>
+                <div class="activeUser hide">
+                    <h3>Remove users</h3>
+                    <input type="text" class="search" placeholder="User's name" onkeyup="search(event)">
+                    <div class="list"></div>
                 </div>
                 <div class="shareScreen">
                     <h1 id="id"></h1>

@@ -9,6 +9,8 @@ let otherUsername = '';
 let peerID = '';
 let shareStream = '';
 const activeUser = [];
+const vidUser = [];
+const colors = ['purple', 'blue', 'brown', 'magenta', 'yellow', 'gray', 'crimson']
 const initPacket = {};
 let connection;
 
@@ -38,6 +40,11 @@ const addMsgToDom = (data, type, target = document.querySelector('.msgBox')) => 
             setTimeout(() => {
                 target.innerHTML = '';
             }, 30000)
+            break;
+        case 'remove':
+            target.innerHTML += `<div class='listItems' onclick="disconnect('${data.username}')">${data.username}</div>`;
+            break;
+        case 'clear': target.innerHTML = data;
             break;
         default:
             break;
@@ -96,13 +103,16 @@ const connectionData = (conn, type) => {
         console.log('Connection for data exchange successfully established', conn.metadata);
         manageNotifs('Succesfully Connected', 'notifSuccess');
         if (type === 'master') {
-            activeUser.push({ ...conn.metadata, conn });
+            activeUser.push({ ...conn.metadata, conn, color: colors[activeUser.length] });
             console.log('[ACTIVE USERS]', activeUser);
             activeUser.forEach(user => {
                 console.log('[SENDING CONNECTION DATA]')
                 user.conn.send({ ...conn.metadata, type: 'connection' });
             })
             document.querySelector('.join').classList.add('hide');
+            document.querySelector('.shareScreen').classList.add('hide');
+            document.getElementById('v1').classList.add('hide');
+            document.querySelector('.activeUser').classList.remove('hide');
         }
         else {
             document.querySelector('.shareScreen').classList.add('hide');
@@ -139,13 +149,14 @@ const callInit = async () => {
         const videoStream = createEmptyVideoTrack({ width: 400, height: 400 });
         const mediaStream = new MediaStream([...audioStream.getAudioTracks(), videoStream]);
         otherUsername = document.querySelector('#call').value;
+        // Connect with the pear for data exchange
+        const conn = peer.connect(otherUsername, { metadata: initPacket });
+        connectionData(conn, 'slave');
+
         // Call the pear for audio and video exchange
         const call = peer.call(otherUsername, mediaStream);
         console.log('[CALL INITIALISED]');
         callData(call);
-        // Connect with the pear for data exchange
-        const conn = peer.connect(otherUsername, { metadata: initPacket });
-        connectionData(conn, 'slave');
     } catch (error) {
         alert(error);
     }
@@ -172,6 +183,34 @@ const share = async () => {
     }
 }
 
+const search = event => {
+    console.log(event.target.value);
+    addMsgToDom('', 'clear', document.querySelector('.list'));
+    const str = event.target.value;
+    if (str) {
+        const result = activeUser.filter(el => {
+            return el.username.startsWith(str);
+        })
+        console.log(result);
+        result.forEach(el => {
+            addMsgToDom(el, 'remove', document.querySelector('.list'));
+        })
+    }
+}
+
+const disconnect = user => {
+    console.log(user);
+    activeUser.forEach(el => {
+        if (el.username === user) {
+            el.conn.close();
+            vidUser.forEach(vid => {
+                if (vid.peerID === el.peerID)
+                    vid.call.close();
+            })
+        }
+    })
+}
+
 const listenEnter = event => {
     if (event.keyCode === 13)
         handleMsg();
@@ -194,8 +233,10 @@ peer.on('open', id => {
 peer.on('call', async call => {
     console.log('[INCOMING CALL RECEIVED]');
     manageNotifs('Incoming call received', 'notifSuccess')
-    call.answer(shareStream);
+
     // callData(call);
+    vidUser.push({ call, peerID: call.peer });
+    call.answer(shareStream);
     call.on('error', err => {
         alert('[ERROR BEFORE RECEIVING]' + err);
     });
