@@ -36,7 +36,7 @@ const addMsgToDom = (data, type, target = document.querySelector('.msgBox')) => 
             }, 30000)
             break;
         case 'notifFail':
-            target.innerHTML = `<div class='notifSuccess'>${data}</div>`;
+            target.innerHTML = `<div class='notifFail'>${data}</div>`;
             setTimeout(() => {
                 target.innerHTML = '';
             }, 30000)
@@ -110,7 +110,7 @@ const connectionData = (conn, type) => {
                 user.conn.send({ ...conn.metadata, type: 'connection' });
             })
             document.querySelector('.join').classList.add('hide');
-            document.querySelector('.shareScreen').classList.add('hide');
+            document.querySelector('.share').classList.add('hide');
             document.getElementById('v1').classList.add('hide');
             document.querySelector('.activeUser').classList.remove('hide');
         }
@@ -144,10 +144,10 @@ const connectionData = (conn, type) => {
 
 const callInit = async () => {
     try {
-        // const audioStream = createEmptyAudioTrack();
-        const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
+        const audioStream = createEmptyAudioTrack();
+        //const audioStream = await navigator.mediaDevices.getUserMedia({ audio: true, video: false });
         const videoStream = createEmptyVideoTrack({ width: 400, height: 400 });
-        const mediaStream = new MediaStream([...audioStream.getAudioTracks(), videoStream]);
+        const mediaStream = new MediaStream([audioStream, videoStream]);
         otherUsername = document.querySelector('#call').value;
         // Connect with the pear for data exchange
         const conn = peer.connect(otherUsername, { metadata: initPacket });
@@ -166,14 +166,21 @@ const share = async () => {
     try {
         const onError = () => {
             // alert('Incompatible browser detected');
-            manageNotifs('Incomaptible browser detected', 'notifFail');
+            manageNotifs('Incompatible browser detected', 'notifFail');
         }
 
         if (navigator.mediaDevices.getDisplayMedia) {
             const videosStream = await navigator.mediaDevices.getDisplayMedia({ video: true });
-            const audioStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
-            const mediaStream = new MediaStream([...videosStream.getVideoTracks(), ...audioStream.getAudioTracks()]);
-            shareStream = mediaStream;
+            try {
+                const audioStream = await navigator.mediaDevices.getUserMedia({ video: false, audio: true });
+                const mediaStream = new MediaStream([...videosStream.getVideoTracks(), ...audioStream.getAudioTracks()]);
+                shareStream = mediaStream;
+            } catch (error) {
+                manageNotifs('Audio source not found or denied', 'notifFail');
+                const audioTrack = createEmptyAudioTrack()
+                const mediaStream = new MediaStream([...videosStream.getVideoTracks(), audioTrack]);
+                shareStream = mediaStream;
+            }
             document.querySelector('#id').innerHTML = 'Share this ID: ' + peerID;
         } else {
             onError();

@@ -197,6 +197,9 @@ body{
     .share{
         display: none;
     }
+    .join .greet{
+        display: none;
+    }
     #v1{
         width: 95%;
         max-width: 700px;
