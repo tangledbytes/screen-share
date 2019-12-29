@@ -1,0 +1,21 @@
+name: Docker Image CI
+
+on: 
+  pull_request:
+    branches: 
+      - master
+
+jobs:
+
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v1
+    - name: Build the Docker image and publish package
+      run: 
+        VERSION=$(date +%s)
+        docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share:$(VERSION)
+        docker login -u utkarsh-pro -p $({secrets.GITHUB_TOKEN}) docker.pkg.github.com
+        docker push docker.pkg.github.com/utkarsh-pro/screen-share:$(VERSION)
