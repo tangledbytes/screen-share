@@ -21,4 +21,4 @@ jobs:
         VERSION=$(date +%s)
         docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:${VERSION}
         docker login -u utkarsh-pro -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
-        docker push docker.pkg.github.com/utkarsh-pro/screen-share:${VERSION}
+        docker push docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:${VERSION}
