@@ -16,9 +16,9 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Set env
+      run: echo ::set-env name=VERSION::$(echo $(date +%s))
     - name: Build the Docker image and publish package
-      env:
-        VERSION: ${{ $(date +%s) }}
       run: |
         echo $VERSION
         docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:$VERSION
