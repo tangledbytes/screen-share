@@ -17,8 +17,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image and publish package
+      env:
+        VERSION: ${{ date +%s }}
       run: |
-        VERSION=$(date +%s)
-        docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:${VERSION}
+        echo $VERSION
+        docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:$VERSION
         docker login -u utkarsh-pro -p ${{ secrets.GITHUB_TOKEN }} docker.pkg.github.com
-        docker push docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:${VERSION}
+        docker push docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:$VERSION
+        docker logout docker.pkg.github.com
