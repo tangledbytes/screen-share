@@ -18,7 +18,7 @@ jobs:
     - uses: actions/checkout@v1
     - name: Build the Docker image and publish package
       env:
-        VERSION: ${{ date +%s }}
+        VERSION: ${{ $(date +%s) }}
       run: |
         echo $VERSION
         docker build . --file Dockerfile --tag docker.pkg.github.com/utkarsh-pro/screen-share/screenshare:$VERSION
