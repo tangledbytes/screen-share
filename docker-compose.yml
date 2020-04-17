@@ -8,7 +8,7 @@ services:
       replicas: 1
     labels:
         - "traefik.enable=true"
-        - "traefik.http.routers.mfrontend.rule=Host(`screenshare.sagacious.dev`)"
-        - "traefik.http.routers.mfrontend.entrypoints=websecure"
-        - "traefik.http.routers.mfrontend.tls.certresolver=myresolver"
+        - "traefik.http.routers.screenshare-frontend.rule=Host(`screenshare.sagacious.dev`)"
+        - "traefik.http.routers.screenshare-frontend.entrypoints=websecure"
+        - "traefik.http.routers.screenshare-frontend.tls.certresolver=myresolver"
         - "traefik.http.services.screenshare-service.loadbalancer.server.port=8000"
