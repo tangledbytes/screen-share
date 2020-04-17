@@ -1,0 +1,14 @@
+version: "3.7"
+services:
+  screenshare:
+    build: 
+        context: .
+        dockerfile: Dockerfile
+    ports: 
+        - 80:8000
+    labels:
+        - "traefik.enable=true"
+        - "traefik.http.routers.screenshare-frontend.rule=Host(`screenshare.sagacious.dev`)"
+        - "traefik.http.routers.screenshare-frontend.entrypoints=websecure"
+        - "traefik.http.routers.screenshare-frontend.tls.certresolver=myresolver"
+        - "traefik.http.services.screenshare-service.loadbalancer.server.port=8000"
